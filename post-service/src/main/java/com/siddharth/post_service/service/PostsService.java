@@ -1,5 +1,8 @@
 package com.siddharth.post_service.service;
 
+import com.siddharth.post_service.auth.UserContextHolder;
+import com.siddharth.post_service.clients.ConnectionsClient;
+import com.siddharth.post_service.dto.PersonDto;
 import com.siddharth.post_service.dto.PostCreateRequestDto;
 import com.siddharth.post_service.dto.PostDto;
 import com.siddharth.post_service.entity.Post;
@@ -20,6 +23,7 @@ public class PostsService {
 
     private final PostsRepository postsRepository;
     private final ModelMapper modelMapper;
+    private final ConnectionsClient connectionsClient;
 
     public PostDto createPost(PostCreateRequestDto postDto, Long userId) {
         Post post = modelMapper.map(postDto, Post.class);
@@ -30,7 +34,18 @@ public class PostsService {
     }
 
     public PostDto getPostById(Long postId) {
+//        log.debug("Retrieving post with ID: {}", postId);
+//        Post post = postsRepository.findById(postId).orElseThrow(() ->
+//                new ResourceNotFoundException("Post not found with id: "+postId));
+//        return modelMapper.map(post, PostDto.class);
         log.debug("Retrieving post with ID: {}", postId);
+
+        Long userId = UserContextHolder.getCurrentUserId();
+
+        List<PersonDto> firstConnections = connectionsClient.getFirstConnections();
+
+//        TODO send Notifications to all connections
+
         Post post = postsRepository.findById(postId).orElseThrow(() ->
                 new ResourceNotFoundException("Post not found with id: "+postId));
         return modelMapper.map(post, PostDto.class);
